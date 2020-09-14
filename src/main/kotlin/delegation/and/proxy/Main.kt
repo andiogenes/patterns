@@ -3,6 +3,7 @@ package delegation.and.proxy
 import delegation.and.proxy.io.FileAudioOutput
 import delegation.and.proxy.io.FileAudioInput
 import delegation.and.proxy.processors.*
+import delegation.and.proxy.proxy.AutoLoggedProcessor
 
 fun main() {
     // Путь до файла со входными данными
@@ -23,6 +24,8 @@ fun main() {
         // Удаляет delay из середины цепи и добавляет его в конец.
         remove(delay)
         add(delay)
+        // Добавляет Chorus, протоколируемый через прокси AutoLoggedProcessor
+        add(AutoLoggedProcessor(Chorus(), "Chorus"))
     }
     val processedData = processor.process(data)
 
