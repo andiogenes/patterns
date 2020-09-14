@@ -1,9 +1,11 @@
 package delegation.and.proxy
 
-import delegation.and.proxy.io.FileAudioOutput
 import delegation.and.proxy.io.FileAudioInput
-import delegation.and.proxy.processors.*
-import delegation.and.proxy.proxy.AutoLoggedProcessor
+import delegation.and.proxy.io.FileAudioOutput
+import delegation.and.proxy.processors.Delay
+import delegation.and.proxy.processors.Distortion
+import delegation.and.proxy.processors.WahWah
+import delegation.and.proxy.processors.sequentialProcessorOf
 
 fun main() {
     // Путь до файла со входными данными
