@@ -24,8 +24,6 @@ fun main() {
         // Удаляет delay из середины цепи и добавляет его в конец.
         remove(delay)
         add(delay)
-        // Добавляет Chorus, протоколируемый через прокси AutoLoggedProcessor
-        add(AutoLoggedProcessor(Chorus(), "Chorus"))
     }
     val processedData = processor.process(data)
 
