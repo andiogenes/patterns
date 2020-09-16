@@ -1,40 +1,51 @@
 package delegation.and.proxy.logging
 
+import delegation.and.proxy.logging.writers.LogWriter
+
 /**
  * Логгер проекта.
  */
-object Logger : Loggable {
+object Logger {
     /**
-     * Конкретный логгер, использующийся для протоколирования.
+     * Объекты, пишущие информацию в лог.
      */
-    private val impl: Loggable by lazy {
-        ConsoleLogger()
+    private val writers = mutableListOf<LogWriter>()
+
+    /**
+     * Устанавливает объекты, пишущие информацию в лог.
+     */
+    fun setWriters(vararg writer: LogWriter) {
+        writers.apply {
+            clear()
+            addAll(writer)
+        }
     }
 
     /**
-     * Набор объектов для отслеживания их идентификаторов.
-     *
-     * __Важное замечание__:
-     * В данной реализации [Set] используются стандартные ссылки на объекты,
-     * следовательно, все протоколируемые объекты будут иметь хотя бы одну
-     * живую ссылку на себя и не будут удалены сборщиком мусора.
-     *
-     * В "реальных" приложениях можно решить эту проблему реализацией
-     * WeakSet, в которой используются "слабые" ссылки, которые не влияют
-     * на работу сборщика мусора.
-     *
-     * Время жизни программы в лабораторных работах маленькое (буквально
-     * несколько секунд), поэтому для простоты было сделано так.
-     *
-     * В курсовом проекте будет использоваться другой логгер.
+     * Форматирует строку лога по типу [name]_[role]_[id]:[method]_[methodRole], где:
+     * - [name] - конкретное имя класса
+     * - [role] - его роль на UML-диаграмме
+     * - [id] - id объекта
+     * - [method] - вызываемый в текущий момент времени метод
+     * - [methodRole] - образ метода на UML-диаграмме (если задан)
      */
-    private val idPool by lazy {
-        mutableSetOf<Any>()
+    private fun formatLog(name: String, role: String, id: String, method: String, methodRole: String): String {
+        val methodRoleSeparator = if (methodRole.isNotEmpty()) "_" else ""
+        return "${name}_${role}_$id:$method$methodRoleSeparator$methodRole"
     }
 
-    override fun log(obj: Any, role: String, method: String, methodRole: String, id: Int) {
-        // Помещаем объект в набор и получаем идентификатор для него.
-        val actualId = idPool.apply { add(obj) }.indexOf(obj)
-        impl.log(obj, role, method, methodRole, actualId)
+    /**
+     * Пишет в лог [name]_[role]_[id]:[method]_[methodRole], где:
+     * - [name] - конкретное имя класса
+     * - [role] - его роль на UML-диаграмме
+     * - [id] - id объекта
+     * - [method] - вызываемый в текущий момент времени метод
+     * - [methodRole] - образ метода на UML-диаграмме (если задан)
+     */
+    fun log(name: String, role: String, id: String, method: String, methodRole: String = "") {
+        val line = formatLog(name, role, id, method, methodRole)
+        writers.forEach {
+            it.log(line)
+        }
     }
 }
