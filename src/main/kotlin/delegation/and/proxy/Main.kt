@@ -4,7 +4,9 @@ import delegation.and.proxy.io.FileAudioInput
 import delegation.and.proxy.io.FileAudioOutput
 import delegation.and.proxy.logging.Logger
 import delegation.and.proxy.logging.writers.ConsoleLogWriter
-import delegation.and.proxy.processors.*
+import delegation.and.proxy.processors.boundedProcessorFrom
+import delegation.and.proxy.processors.sequentialProcessorOf
+import delegation.and.proxy.processors.single.*
 
 fun main() {
     // Инициализация логгера
@@ -36,6 +38,14 @@ fun main() {
         add(delay)
     }
     val processedData = processor.process(data)
+
+    // Пример работы Proxy - ограниченного по вместимости обработчика
+    val boundedProcessor = boundedProcessorFrom(processor, 4).apply {
+        add(Distortion())
+        add(Distortion())
+        add(Distortion())
+    }
+    println("boundedProcessor.getSize(): ${boundedProcessor.getSize()}")
 
     // Запись обработанного звукового сигнала в файл
     with(FileAudioOutput(destinationPath)) {
