@@ -1,4 +1,4 @@
-package delegation.and.proxy
+package main
 
 import delegation.and.proxy.io.FileAudioInput
 import delegation.and.proxy.io.FileAudioOutput
