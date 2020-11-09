@@ -4,9 +4,13 @@ import delegation.and.proxy.io.FileAudioInput
 import delegation.and.proxy.io.FileAudioOutput
 import delegation.and.proxy.logging.Logger
 import delegation.and.proxy.logging.writers.ConsoleLogWriter
-import delegation.and.proxy.processors.boundedProcessorFrom
 import delegation.and.proxy.processors.sequentialProcessorOf
-import delegation.and.proxy.processors.single.*
+import delegation.and.proxy.processors.single.Delay
+import delegation.and.proxy.processors.single.Distortion
+import delegation.and.proxy.processors.single.WahWah
+import structural.part.one.decorators.GainFilter
+import structural.part.one.decorators.PanFilter
+import structural.part.one.decorators.VolumeFilter
 
 fun main() {
     // Инициализация логгера
@@ -26,26 +30,26 @@ fun main() {
         data
     }
 
-    // Обработка звука
-    val delay = Delay()
+    // Создание обработчика
     val processor = sequentialProcessorOf(
         Distortion(),
-        delay,
+        Delay(),
         WahWah(),
-    ).apply {
-        // Удаляет delay из середины цепи и добавляет его в конец.
-        remove(delay)
-        add(delay)
-    }
-    val processedData = processor.process(data)
+    )
 
-    // Пример работы Proxy - ограниченного по вместимости обработчика
-    val boundedProcessor = boundedProcessorFrom(processor, 4).apply {
-        add(Distortion())
-        add(Distortion())
-        add(Distortion())
+    // Пример декорирования объектов
+    val decoratedProcessor = PanFilter(
+        GainFilter(
+            VolumeFilter(processor).apply {
+                volume = 10
+            }
+        ).apply {
+            gain = 20
+        }
+    ).apply {
+        balance = 75
     }
-    println("boundedProcessor.getSize(): ${boundedProcessor.getSize()}")
+    val processedData = decoratedProcessor.process(data)
 
     // Запись обработанного звукового сигнала в файл
     with(FileAudioOutput(destinationPath)) {
