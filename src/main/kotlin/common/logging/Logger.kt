@@ -48,4 +48,18 @@ object Logger {
             it.log(line)
         }
     }
+
+    /**
+     * Выполняет блок кода [block], информация о работе которого будет логгироваться только во [writer].
+     */
+    fun wrap(writer: LogWriter, block: () -> Unit) {
+        // Сохраняем предыдущие логгеры
+        val previousWriters = writers
+        // Устанавливаем новый логгер
+        setWriters(writer)
+        // Выполняем действие
+        block()
+        // Восстанавливаем логгеры.
+        setWriters(*previousWriters.toTypedArray())
+    }
 }
