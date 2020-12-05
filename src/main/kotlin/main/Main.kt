@@ -1,57 +1,59 @@
 package main
 
-import prepatterns.delegation.FileAudioInput
-import prepatterns.delegation.FileAudioOutput
+import common.data.DummyAudioData
 import common.logging.Logger
-import common.logging.writers.ConsoleLogWriter
+import common.logging.writers.FileLogWriter
+import common.processors.SoundProcessor
 import common.processors.single.Delay
 import common.processors.single.Distortion
 import common.processors.single.WahWah
+import prepatterns.proxy.sequentialProcessorOf
 import structural.decorators.GainFilter
 import structural.decorators.PanFilter
 import structural.decorators.VolumeFilter
+import structural.iterators.IterableProcessor
 import structural.iterators.LinearIterableProcessor
+import structural.iterators.SingleIterableProcessor
 
 fun main() {
-    // Инициализация логгера
-    Logger.setWriters(
-        ConsoleLogWriter(),
-    )
-
-    // Путь до файла со входными данными
-    val sourcePath = "data/test.music"
-    // Путь до файла, в который будут помещены выходные данные
-    val destinationPath = "data/processed.test.music"
-
-    // Получение звукового сигнала
-    val data = with(FileAudioInput(sourcePath)) {
-        val data = read()
-        close()
-        data
+    Logger.wrap(FileLogWriter("decorators_1")) {
+        decorators(Distortion())
     }
-
-    // Пример работы итератора
-    val iterableProcessor = LinearIterableProcessor(
-        listOf(
-            Distortion(),
-            Delay(),
-            WahWah(),
+    Logger.wrap(FileLogWriter("decorators_2")) {
+        decorators(
+            sequentialProcessorOf(
+                Distortion(),
+                Delay(),
+                WahWah()
+            )
         )
-    ).apply {
-        val it = iterator()
-        println("first item: ${it.first()}")
-
-        while (!it.isDone()) {
-            println("current item: ${it.next()}")
-        }
-
-        println("last item: ${it.currentItem()}")
     }
 
-    // Пример декорирования объектов
+    Logger.wrap(FileLogWriter("iterators_1")) {
+        iterators(
+            LinearIterableProcessor(
+                listOf(
+                    Distortion(),
+                    Delay(),
+                    WahWah(),
+                )
+            )
+        )
+    }
+    Logger.wrap(FileLogWriter("iterators_2")) {
+        iterators(SingleIterableProcessor(Distortion()))
+    }
+}
+
+/**
+ * Пример декорирования объектов.
+ *
+ * [processor] последовательно декорируется [VolumeFilter], [GainFilter], [PanFilter].
+ */
+fun decorators(processor: SoundProcessor) {
     val decoratedProcessor = PanFilter(
         GainFilter(
-            VolumeFilter(iterableProcessor).apply {
+            VolumeFilter(processor).apply {
                 volume = 10
             }
         ).apply {
@@ -60,11 +62,27 @@ fun main() {
     ).apply {
         balance = 75
     }
-    val processedData = decoratedProcessor.process(data)
+    decoratedProcessor.process(DummyAudioData(byteArrayOf()))
 
-    // Запись обработанного звукового сигнала в файл
-    with(FileAudioOutput(destinationPath)) {
-        write(processedData)
-        close()
+}
+
+/**
+ * Пример работы итератора.
+ *
+ * Форматированный вывод всех обработчиков, которые содержит один обработчик.
+ */
+fun iterators(iterableProcessor: IterableProcessor) {
+    val representation = mutableListOf<String>()
+
+    iterableProcessor.apply {
+        val it = iterator()
+
+        while (!it.isDone()) {
+            representation.add(it.currentItem()?.javaClass?.simpleName ?: "")
+            it.next()
+        }
     }
+
+    println("Обработчик типа ${iterableProcessor.javaClass.simpleName} содержит следующие обработчики:")
+    println(representation.joinToString("\n") { "* $it" })
 }
