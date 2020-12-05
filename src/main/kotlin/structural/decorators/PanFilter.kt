@@ -1,8 +1,8 @@
-package structural.part.one.decorators
+package structural.decorators
 
-import delegation.and.proxy.data.AudioData
-import delegation.and.proxy.processors.SoundProcessor
-import structural.part.one.logging.LoggableObject
+import common.data.AudioData
+import common.processors.SoundProcessor
+import common.logging.LoggableObject
 
 /**
  * Распределяет звук в пространстве в стереосистеме.
