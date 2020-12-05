@@ -1,16 +1,16 @@
 package main
 
-import delegation.and.proxy.io.FileAudioInput
-import delegation.and.proxy.io.FileAudioOutput
-import delegation.and.proxy.logging.Logger
-import delegation.and.proxy.logging.writers.ConsoleLogWriter
-import delegation.and.proxy.processors.single.Delay
-import delegation.and.proxy.processors.single.Distortion
-import delegation.and.proxy.processors.single.WahWah
-import structural.part.one.decorators.GainFilter
-import structural.part.one.decorators.PanFilter
-import structural.part.one.decorators.VolumeFilter
-import structural.part.one.iterators.LinearIterableProcessor
+import prepatterns.delegation.FileAudioInput
+import prepatterns.delegation.FileAudioOutput
+import common.logging.Logger
+import common.logging.writers.ConsoleLogWriter
+import common.processors.single.Delay
+import common.processors.single.Distortion
+import common.processors.single.WahWah
+import structural.decorators.GainFilter
+import structural.decorators.PanFilter
+import structural.decorators.VolumeFilter
+import structural.iterators.LinearIterableProcessor
 
 fun main() {
     // Инициализация логгера
