@@ -1,4 +1,4 @@
-package prepatterns.proxy
+package introduction.proxy
 
 import common.processors.sequential.SequentialProcessor
 
