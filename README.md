@@ -68,3 +68,145 @@ _Антон Завьялов, ПИ-72_
 Диаграмма классов:
 
 ![Adapter](https://raw.githubusercontent.com/andiogenes/patterns/media/structural-1/adapter.png)
+
+
+### __Скриншот, демонстрирующий работу программы__
+--------------------------------------------------
+![Screenshot](https://raw.githubusercontent.com/andiogenes/patterns/media/structural-1/screen.png)
+
+### __Логи__
+------------
+#### Декораторы. Функциональный тест 1.
+```
+Distortion_Distortion_13:36:48.179000:<init>
+SoundProcessorDecorator_decorator (base)_13:36:48.190000:<init>
+VolumeFilter_decorator (derived)_13:36:48.191000:<init>
+SoundProcessorDecorator_decorator (base)_13:36:48.191000:<init>
+GainFilter_decorator (derived)_13:36:48.192000:<init>
+SoundProcessorDecorator_decorator (base)_13:36:48.192000:<init>
+PanFilter_decorator (derived)_13:36:48.193000:<init>
+PanFilter_decorator (derived)_13:36:48.193000:process_operation
+SoundProcessorDecorator_decorator (base)_13:36:48.192000:process_operation
+GainFilter_decorator (derived)_13:36:48.192000:process_operation
+SoundProcessorDecorator_decorator (base)_13:36:48.191000:process_operation
+VolumeFilter_decorator (derived)_13:36:48.191000:process_operation
+SoundProcessorDecorator_decorator (base)_13:36:48.190000:process_operation
+Distortion_Distortion_13:36:48.179000:process_process
+```
+
+#### Декораторы. Функциональный тест 2.
+```
+Distortion_Distortion_13:36:48.198000:<init>
+Delay_Delay_13:36:48.199000:<init>
+WahWah_WahWah_13:36:48.200000:<init>
+SequentialProcessor_SequentialProcessor_13:36:48.234000:<init>
+SoundProcessorDecorator_decorator (base)_13:36:48.239000:<init>
+VolumeFilter_decorator (derived)_13:36:48.239000:<init>
+SoundProcessorDecorator_decorator (base)_13:36:48.240000:<init>
+GainFilter_decorator (derived)_13:36:48.240000:<init>
+SoundProcessorDecorator_decorator (base)_13:36:48.240000:<init>
+PanFilter_decorator (derived)_13:36:48.240000:<init>
+PanFilter_decorator (derived)_13:36:48.240000:process_operation
+SoundProcessorDecorator_decorator (base)_13:36:48.240000:process_operation
+GainFilter_decorator (derived)_13:36:48.240000:process_operation
+SoundProcessorDecorator_decorator (base)_13:36:48.240000:process_operation
+VolumeFilter_decorator (derived)_13:36:48.239000:process_operation
+SoundProcessorDecorator_decorator (base)_13:36:48.239000:process_operation
+SequentialProcessor_SequentialProcessor_13:36:48.234000:process_process
+Distortion_Distortion_13:36:48.198000:process_process
+Delay_Delay_13:36:48.199000:process_process
+WahWah_WahWah_13:36:48.200000:process_process
+```
+
+#### Итераторы. Функциональный тест 1.
+```
+Distortion_Distortion_13:36:48.243000:<init>
+Delay_Delay_13:36:48.243000:<init>
+WahWah_WahWah_13:36:48.243000:<init>
+LinearIterableProcessor_aggregate (concrete)_13:36:48.243000:<init>
+SequentialProcessor_SequentialProcessor_13:36:48.243000:<init>
+LinearIterableProcessor_aggregate (concrete)_13:36:48.243000:iterator_iterator
+LinearIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.245000:<init>
+LinearIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.245000:isDone_IsDone
+LinearIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.245000:currentItem_CurrentItem
+LinearIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.245000:next_Next
+LinearIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.245000:isDone_IsDone
+LinearIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.245000:currentItem_CurrentItem
+LinearIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.245000:next_Next
+LinearIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.245000:isDone_IsDone
+LinearIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.245000:currentItem_CurrentItem
+LinearIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.245000:next_Next
+LinearIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.245000:isDone_IsDone
+```
+
+#### Итераторы. Функциональный тест 2.
+```
+Distortion_Distortion_13:36:48.278000:<init>
+SingleIterableProcessor_aggregate (concrete)_13:36:48.278000:<init>
+SingleIterableProcessor_aggregate (concrete)_13:36:48.278000:iterator_iterator
+SingleIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.279000:<init>
+SingleIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.279000:isDone_IsDone
+SingleIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.279000:currentItem_CurrentItem
+SingleIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.279000:next_Next
+SingleIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.279000:isDone_IsDone
+```
+
+#### Компоновщики.
+```
+CompositeProcessor_composite (base)_13:36:48.281000:<init>
+CompositeProcessor_composite (base)_13:36:48.282000:<init>
+Distortion_Distortion_13:36:48.282000:<init>
+SoundProcessorToComposable_adapter_13:36:48.284000:<init>
+CompositeProcessor_composite (base)_13:36:48.282000:addChild_add
+Delay_Delay_13:36:48.285000:<init>
+SoundProcessorToComposable_adapter_13:36:48.285000:<init>
+CompositeProcessor_composite (base)_13:36:48.282000:addChild_add
+CompositeProcessor_composite (base)_13:36:48.285000:<init>
+WahWah_WahWah_13:36:48.285000:<init>
+SoundProcessorToComposable_adapter_13:36:48.286000:<init>
+CompositeProcessor_composite (base)_13:36:48.285000:addChild_add
+Delay_Delay_13:36:48.286000:<init>
+SoundProcessorToComposable_adapter_13:36:48.286000:<init>
+CompositeProcessor_composite (base)_13:36:48.285000:addChild_add
+CompositeProcessor_composite (base)_13:36:48.287000:<init>
+Mixer_composite (derived)_13:36:48.288000:<init>
+CompositeProcessor_composite (base)_13:36:48.287000:addChild_add
+CompositeProcessor_composite (base)_13:36:48.287000:addChild_add
+CompositeProcessor_composite (base)_13:36:48.281000:addChild_add
+Distortion_Distortion_13:36:48.288000:<init>
+SoundProcessorToComposable_adapter_13:36:48.288000:<init>
+CompositeProcessor_composite (base)_13:36:48.281000:addChild_add
+CompositeProcessor_composite (base)_13:36:48.281000:process_operation
+Mixer_composite (derived)_13:36:48.288000:process_operation
+CompositeProcessor_composite (base)_13:36:48.287000:process_operation
+CompositeProcessor_composite (base)_13:36:48.282000:process_operation
+SoundProcessorToComposable_adapter_13:36:48.284000:process_request
+Distortion_Distortion_13:36:48.282000:process_process
+SoundProcessorToComposable_adapter_13:36:48.285000:process_request
+Delay_Delay_13:36:48.285000:process_process
+CompositeProcessor_composite (base)_13:36:48.285000:process_operation
+SoundProcessorToComposable_adapter_13:36:48.286000:process_request
+WahWah_WahWah_13:36:48.285000:process_process
+SoundProcessorToComposable_adapter_13:36:48.286000:process_request
+Delay_Delay_13:36:48.286000:process_process
+SoundProcessorToComposable_adapter_13:36:48.288000:process_request
+Distortion_Distortion_13:36:48.288000:process_process
+```
+
+#### Адаптеры.
+```
+CompositeProcessor_composite (base)_13:36:48.295000:<init>
+Distortion_Distortion_13:36:48.295000:<init>
+SoundProcessorToComposable_adapter_13:36:48.295000:<init>
+CompositeProcessor_composite (base)_13:36:48.295000:addChild_add
+IncompatibleProcessor_adaptee_13:36:48.297000:<init>
+IncompatibleProcessorAdapter_adapter_13:36:48.297000:<init>
+SoundProcessorToComposable_adapter_13:36:48.297000:<init>
+CompositeProcessor_composite (base)_13:36:48.295000:addChild_add
+CompositeProcessor_composite (base)_13:36:48.295000:process_operation
+SoundProcessorToComposable_adapter_13:36:48.295000:process_request
+Distortion_Distortion_13:36:48.295000:process_process
+SoundProcessorToComposable_adapter_13:36:48.297000:process_request
+IncompatibleProcessorAdapter_adapter_13:36:48.297000:process_request
+IncompatibleProcessor_adaptee_13:36:48.297000:process_specificRequest
+```
