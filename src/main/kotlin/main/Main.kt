@@ -3,11 +3,17 @@ package main
 import common.data.DummyAudioData
 import common.logging.Logger
 import common.logging.writers.FileLogWriter
+import common.processors.ComposableProcessor
 import common.processors.SoundProcessor
+import common.processors.sequential.sequentialProcessorOf
 import common.processors.single.Delay
 import common.processors.single.Distortion
 import common.processors.single.WahWah
-import prepatterns.proxy.sequentialProcessorOf
+import structural.adapters.toComposable
+import structural.adapters.IncompatibleProcessor
+import structural.adapters.adaptIncompatibleProcessor
+import structural.composites.CompositeProcessor
+import structural.composites.Mixer
 import structural.decorators.GainFilter
 import structural.decorators.PanFilter
 import structural.decorators.VolumeFilter
@@ -42,6 +48,29 @@ fun main() {
     }
     Logger.wrap(FileLogWriter("iterators_2")) {
         iterators(SingleIterableProcessor(Distortion()))
+    }
+
+    Logger.wrap(FileLogWriter("composites")) {
+        composites(CompositeProcessor().apply {
+            addChild(
+                Mixer(
+                    CompositeProcessor().apply {
+                        addChild(Distortion().toComposable())
+                        addChild(Delay().toComposable())
+                    },
+                    CompositeProcessor().apply {
+                        addChild(WahWah().toComposable())
+                        addChild(Delay().toComposable())
+                    },
+                    0.6
+                )
+            )
+            addChild(Distortion().toComposable())
+        })
+    }
+
+    Logger.wrap(FileLogWriter("adapters")) {
+        adapters()
     }
 }
 
@@ -85,4 +114,27 @@ fun iterators(iterableProcessor: IterableProcessor) {
 
     println("Обработчик типа ${iterableProcessor.javaClass.simpleName} содержит следующие обработчики:")
     println(representation.joinToString("\n") { "* $it" })
+}
+
+/**
+ * Пример работы итератора.
+ *
+ * Обрабатывает "звук" через цепь обработчиков [composableProcessor].
+ */
+fun composites(composableProcessor: ComposableProcessor) {
+    composableProcessor.process(DummyAudioData(byteArrayOf()))
+}
+
+/**
+ * Пример работы адаптера.
+ *
+ * Пример приведения [SoundProcessor] к [CompositeProcessor];
+ * Пример приведения [IncompatibleProcessor] к [SoundProcessor].
+ */
+fun adapters() {
+    with(CompositeProcessor()) {
+        addChild(Distortion().toComposable())
+        addChild(adaptIncompatibleProcessor().toComposable())
+        process(DummyAudioData(byteArrayOf()))
+    }
 }
