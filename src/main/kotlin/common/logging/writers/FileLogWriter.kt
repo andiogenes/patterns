@@ -18,7 +18,7 @@ internal class FileLogWriter(
     /**
      * Конкретное имя файла, в который идёт протоколирование.
      */
-    private val fileName: String = "$baseDir/${baseName}_${Instant.now()}.log"
+    private val fileName: String = "$baseDir/${baseName}_${Instant.now().toString().replace(':', '_')}.log"
 ) : LogWriter {
     private val writer = PrintWriter(fileName, "UTF-8")
 
