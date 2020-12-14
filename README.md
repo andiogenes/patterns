@@ -1,212 +1,140 @@
-Лабораторная работа 4
+Лабораторные работы 8-9 (Порождающие шаблоны. Часть 1)
 =====================
 _Антон Завьялов, ПИ-72_
 -----------------------
 
-### 1. __Декораторы__
+### 1. Фабричный метод
 --------------------
-Обработчикам звука можно было бы добавить новые свойства и функционал - например, добавить возможность регулировать уровень громкости, усиления звука, баланс каналов.
-
-Наследуем от обработчика звука абстрактный класс "Декоратор обработчика звука", который включает в себя обработчик звука, выполняет его логику по запросу + дополнительный функционал.
-
-Реализуем конкретные декораторы:
-* Фильтр усиления звука. Увеличивает/уменьшает громкость __входного__ сигнала обработчика.
-* Фильтр баланса каналов. Регулирует распределение __выходного__ сигнала между левым и правым каналом стереосистемы.
-* Фильтр громкости. Увеличивает/уменьшает громкость __выходного_ сигнала обработчика.
+Краткое описание назначения классов в системе:
+* __BitCrusher__ - обработчик типа "бит-крашер".
+* __Flanger__ - обработчик типа "флэнджер".
+* __Overdrive__ - обработчик типа "перегруз".
+* __Producer__ - создаёт некоторый обработчик звука (держатель фабричного метода).
+* __BitcrusherProducer__ - создаёт конкретный обработчик типа "бит-крашер" (держатель конкретного фабричного метода).
+* __FlangerProducer__ - создаёт конкретный обработчик типа "флэнджер" (держатель конкретного фабричного метода).
+* __OverdriveProducer__ - создаёт конкретный обработчик типа "перегруз" (держатель конкретного фабричного метода).
 
 Диаграмма классов:
 
-![Decoratoor](https://raw.githubusercontent.com/andiogenes/patterns/media/structural-1/decorators.png)
+![Factory method](https://raw.githubusercontent.com/andiogenes/patterns/media/creational-1/factory_method.png)
 
-### 2. __Итераторы__
+### 2. Абстрактная фабрика
 --------------------
-Когда дело дойдёт до пользовательского интерфейса, при наведении курсора на обработчик, можно выводить список всех вложенных обработчиков. Для обхода обработчиков можно использовать паттерн обработчик.
-
-Спроектируем интерфейс "Итератор" в соответствии с его описанием в книге "Приёмы объектно-ориентированного проектирования. Паттерны проектирования" Гаммы, Хелма, Джонсона, Влиссидеса. Включим следующие методы:
-* First() - перемещает итератор в начало обхода.
-* CurrentItem() - текущий элемент при обходе.
-* Next() - продвижение в обходе на один элемент.
-* IsDone() - проверяет, закончился обход, или нет.
-
-Метод создания итератора включим в нужные интерфейсы и классы. В соответствии с SOLID, вместо добавления метода `iterator()` в интерфейс `SoundProcessor`, пронаследуем от `SoundProcessor` интерфейс `IterableProcessor` с нужным методом.
-
-Для нужных обработчиков (`LinearProcessor` - линейный набор обработчиков, `SingleProcessor` - один обработчик) реализуем наследников, которые соответствуют интерфейсу `IterableProcessor`.
-
-В коде реализуем итераторы как экземпляры анонимных классов.
-
-* Итератор `LinearIterableProcessor` обходит элементы "слево-направо" в порядке добавления элементов.
-* Итератор `SingleIterableProcessor` после вызова `Next()` сразу переходит в состояние "обход завершен".
+Краткое описание назначения классов в системе:
+* __ModularProcessor__ - собирает обработчики на основе выдаваемых поставщиками (клиент абстрактной фабрики).
+* __Preamplifier__ - первый продукт фабрики, __AC30__ и __TwinReverb__ - конкретные продукты.
+* __PowerAmplifier__ - второй продукт фабрики. __SmallAmplifier__ и __MediumAmplifier__ - конкретные продукты.
+* __Speaker__ - третий продукт фабрики. __Celestion__ и __Jensen__ - конкретные продукты.
+* __ModuleProvider__ - поставщик обработчиков модульному процессору (абстрактная фабрика). __FenderProvider__ и __VoxProvider__ - конкретные фабрики.
 
 Диаграмма классов:
 
-![Decorator](https://raw.githubusercontent.com/andiogenes/patterns/media/structural-1/iterators.png)
+![Abstract factory](https://raw.githubusercontent.com/andiogenes/patterns/media/creational-1/abstract_factory.png)
 
-### 3. __Компоновщик__
+### 3. Синглтон
 ----------------------
-Есть виды обработчиков сигналов, которые позволяют смешивать сигнал с двух и более обработчиков. Микшеры и другие обработчики удобно представить как компоновщики и компоненты.
-
-Отнаследуем от `SoundProcessor` интерфейс `ComposableProcessor`. Он будет представлять общий компонент древовидной структуры.
-
-Реализуем `CompositeProcessor` - композит, в который можно добавлять и удалять компоненты. Если в наследниках не реализовано иное, он будет обрабатывать сигналы сначала во всех компонентах "в глубину", а дальше "слева-направо".
-
-На основе `CompositeProcessor` реализуем микшер - компонент, который имеет двух "сыновей" - левый вход и правый вход, баланс звука между ними. Обработка сигнала будет состоять в получении и смешивании сигналов сыновей. Запретим `Mixer` добавлять и удалять элементы.
+Синглтон уже присутствует в системе - с использованием этого паттерна реализовано логгирование. Язык Kotlin поддерживает синглтоны
+на уровне языка в виде `object declaration`. Язык обеспечивает ленивую инициализацию объектов и единственность экземпляра. В этом
+можно убедиться, посмотрев сгенерированный компилятором JVM-байткод.
 
 Диаграмма классов:
 
-![Composite](https://raw.githubusercontent.com/andiogenes/patterns/media/structural-1/composites.png)
+![Singleton](https://raw.githubusercontent.com/andiogenes/patterns/media/creational-1/singleton.png)
 
-### 4. __Адаптер__
+### 4. Прототип
 ------------------
-Удобно было бы любой `SoundProcessor` привести к `ComposableProcessor`, тогда любой не-композит будет являться листом дерева компонентов.
-
-Для этого введем класс `SoundProcessorToComposable`, реализующий интерфейс `ComposableProcessor`, в который будем передавать `SoundProcessor` и выполнять его логику.
-
-Полученный адаптер реализуется при помощи композиции.
-
-Также реализован искусственный адаптер `IncompatibleProcessor` к `SoundProcessor` как пример реализации через наследование.
+Краткое описание назначения классов в системе:
+* __Cloneable<T>__ - обобщенный интерфейс для копируемых объектов.
+* __ProcessorViewModel__ - модель представления обработчика в рабочей области (прототип).
+* __InputViewModel__ - модель представления звукового входа в рабочей области (конкретный прототип).
+* __OutputViewModel__ - модель представления звукового выхода в рабочей области (конкретный прототип).
+* __NodeViewModel__ - модель представления узла обработки звука в рабочей области (конкретный прототип).
+* __Component__ и наследники - элементы управления, располагаемые на узлах в рабочей области.
 
 Диаграмма классов:
 
-![Adapter](https://raw.githubusercontent.com/andiogenes/patterns/media/structural-1/adapter.png)
+![Prototype](https://raw.githubusercontent.com/andiogenes/patterns/media/creational-1/prototype.png)
 
 
 ### __Скриншот, демонстрирующий работу программы__
 --------------------------------------------------
-![Screenshot](https://raw.githubusercontent.com/andiogenes/patterns/media/structural-1/screen.png)
+![Screenshot](https://raw.githubusercontent.com/andiogenes/patterns/media/creational-1/screen.png)
 
 ### __Логи__
 ------------
-#### Декораторы. Функциональный тест 1.
+#### Фабричный метод.
 ```
-Distortion_Distortion_13:36:48.179000:<init>
-SoundProcessorDecorator_decorator (base)_13:36:48.190000:<init>
-VolumeFilter_decorator (derived)_13:36:48.191000:<init>
-SoundProcessorDecorator_decorator (base)_13:36:48.191000:<init>
-GainFilter_decorator (derived)_13:36:48.192000:<init>
-SoundProcessorDecorator_decorator (base)_13:36:48.192000:<init>
-PanFilter_decorator (derived)_13:36:48.193000:<init>
-PanFilter_decorator (derived)_13:36:48.193000:process_operation
-SoundProcessorDecorator_decorator (base)_13:36:48.192000:process_operation
-GainFilter_decorator (derived)_13:36:48.192000:process_operation
-SoundProcessorDecorator_decorator (base)_13:36:48.191000:process_operation
-VolumeFilter_decorator (derived)_13:36:48.191000:process_operation
-SoundProcessorDecorator_decorator (base)_13:36:48.190000:process_operation
-Distortion_Distortion_13:36:48.179000:process_process
+BitCrusherProducer_ConcreteCreator_06:14:37.503260:<init>
+FlangerProducer_ConcreteCreator_06:14:37.505260:<init>
+OverdriveProducer_ConcreteCreator_06:14:37.505260:<init>
+BitCrusherProducer_ConcreteCreator_06:14:37.503260:produce_FactoryMethod
+BitCrusher_ConcreteProduct_06:14:37.507259:<init>
+FlangerProducer_ConcreteCreator_06:14:37.505260:produce_FactoryMethod
+Flanger_ConcreteProduct_06:14:37.507259:<init>
+OverdriveProducer_ConcreteCreator_06:14:37.505260:produce_FactoryMethod
+Overdrive_ConcreteProduct_06:14:37.508260:<init>
+BitCrusher_ConcreteProduct_06:14:37.507259:process_operation
+Flanger_ConcreteProduct_06:14:37.507259:process_operation
+Overdrive_ConcreteProduct_06:14:37.508260:process_operation
 ```
 
-#### Декораторы. Функциональный тест 2.
+#### Абстрактная фабрика. Функциональный тест 1.
 ```
-Distortion_Distortion_13:36:48.198000:<init>
-Delay_Delay_13:36:48.199000:<init>
-WahWah_WahWah_13:36:48.200000:<init>
-SequentialProcessor_SequentialProcessor_13:36:48.234000:<init>
-SoundProcessorDecorator_decorator (base)_13:36:48.239000:<init>
-VolumeFilter_decorator (derived)_13:36:48.239000:<init>
-SoundProcessorDecorator_decorator (base)_13:36:48.240000:<init>
-GainFilter_decorator (derived)_13:36:48.240000:<init>
-SoundProcessorDecorator_decorator (base)_13:36:48.240000:<init>
-PanFilter_decorator (derived)_13:36:48.240000:<init>
-PanFilter_decorator (derived)_13:36:48.240000:process_operation
-SoundProcessorDecorator_decorator (base)_13:36:48.240000:process_operation
-GainFilter_decorator (derived)_13:36:48.240000:process_operation
-SoundProcessorDecorator_decorator (base)_13:36:48.240000:process_operation
-VolumeFilter_decorator (derived)_13:36:48.239000:process_operation
-SoundProcessorDecorator_decorator (base)_13:36:48.239000:process_operation
-SequentialProcessor_SequentialProcessor_13:36:48.234000:process_process
-Distortion_Distortion_13:36:48.198000:process_process
-Delay_Delay_13:36:48.199000:process_process
-WahWah_WahWah_13:36:48.200000:process_process
+FenderProvider_ConcreteFactory_06:14:37.511260:<init>
+ModuleProcessor_Client_06:14:37.512260:<init>
+FenderProvider_ConcreteFactory_06:14:37.511260:createPreamplifier_CreateProduct1
+TwinReverb_ConcreteProduct1_06:14:37.513261:<init>
+FenderProvider_ConcreteFactory_06:14:37.511260:createAmplifier_CreateProduct2
+MediumPowerAmplifier_ConcreteProduct2_06:14:37.514260:<init>
+FenderProvider_ConcreteFactory_06:14:37.511260:createEffectsLoop
+Delay_Delay_06:14:37.515259:<init>
+FenderProvider_ConcreteFactory_06:14:37.511260:createSpeaker_CreateProduct3
+JensenC12N_ConcreteProduct3_06:14:37.516260:<init>
+ModuleProcessor_Client_06:14:37.512260:process_operation
+TwinReverb_ConcreteProduct1_06:14:37.513261:process_operation
+MediumPowerAmplifier_ConcreteProduct2_06:14:37.514260:process_operation
+Delay_Delay_06:14:37.515259:process_process
+JensenC12N_ConcreteProduct3_06:14:37.516260:process_operation
 ```
 
-#### Итераторы. Функциональный тест 1.
+#### Абстрактная фабрика. Функциональный тест 2.
 ```
-Distortion_Distortion_13:36:48.243000:<init>
-Delay_Delay_13:36:48.243000:<init>
-WahWah_WahWah_13:36:48.243000:<init>
-LinearIterableProcessor_aggregate (concrete)_13:36:48.243000:<init>
-SequentialProcessor_SequentialProcessor_13:36:48.243000:<init>
-LinearIterableProcessor_aggregate (concrete)_13:36:48.243000:iterator_iterator
-LinearIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.245000:<init>
-LinearIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.245000:isDone_IsDone
-LinearIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.245000:currentItem_CurrentItem
-LinearIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.245000:next_Next
-LinearIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.245000:isDone_IsDone
-LinearIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.245000:currentItem_CurrentItem
-LinearIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.245000:next_Next
-LinearIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.245000:isDone_IsDone
-LinearIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.245000:currentItem_CurrentItem
-LinearIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.245000:next_Next
-LinearIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.245000:isDone_IsDone
+VoxProvider_ConcreteFactory_06:14:37.518260:<init>
+ModuleProcessor_Client_06:14:37.518260:<init>
+VoxProvider_ConcreteFactory_06:14:37.518260:createPreamplifier_CreateProduct1
+AC30_ConcreteProduct1_06:14:37.519259:<init>
+VoxProvider_ConcreteFactory_06:14:37.518260:createAmplifier_CreateProduct2
+SmallPowerAmplifier_ConcreteProduct2_06:14:37.519259:<init>
+VoxProvider_ConcreteFactory_06:14:37.518260:createEffectsLoop
+Distortion_Distortion_06:14:37.520288:<init>
+VoxProvider_ConcreteFactory_06:14:37.518260:createSpeaker_CreateProduct3
+CelestionG12M_ConcreteProduct3_06:14:37.521260:<init>
+ModuleProcessor_Client_06:14:37.518260:process_operation
+AC30_ConcreteProduct1_06:14:37.519259:process_operation
+SmallPowerAmplifier_ConcreteProduct2_06:14:37.519259:process_operation
+Distortion_Distortion_06:14:37.520288:process_process
+CelestionG12M_ConcreteProduct3_06:14:37.521260:process_operation
 ```
 
-#### Итераторы. Функциональный тест 2.
+#### Прототип.
 ```
-Distortion_Distortion_13:36:48.278000:<init>
-SingleIterableProcessor_aggregate (concrete)_13:36:48.278000:<init>
-SingleIterableProcessor_aggregate (concrete)_13:36:48.278000:iterator_iterator
-SingleIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.279000:<init>
-SingleIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.279000:isDone_IsDone
-SingleIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.279000:currentItem_CurrentItem
-SingleIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.279000:next_Next
-SingleIterableProcessor$Iterator<*>_iterator (concrete)_13:36:48.279000:isDone_IsDone
-```
-
-#### Компоновщики.
-```
-CompositeProcessor_composite (base)_13:36:48.281000:<init>
-CompositeProcessor_composite (base)_13:36:48.282000:<init>
-Distortion_Distortion_13:36:48.282000:<init>
-SoundProcessorToComposable_adapter_13:36:48.284000:<init>
-CompositeProcessor_composite (base)_13:36:48.282000:addChild_add
-Delay_Delay_13:36:48.285000:<init>
-SoundProcessorToComposable_adapter_13:36:48.285000:<init>
-CompositeProcessor_composite (base)_13:36:48.282000:addChild_add
-CompositeProcessor_composite (base)_13:36:48.285000:<init>
-WahWah_WahWah_13:36:48.285000:<init>
-SoundProcessorToComposable_adapter_13:36:48.286000:<init>
-CompositeProcessor_composite (base)_13:36:48.285000:addChild_add
-Delay_Delay_13:36:48.286000:<init>
-SoundProcessorToComposable_adapter_13:36:48.286000:<init>
-CompositeProcessor_composite (base)_13:36:48.285000:addChild_add
-CompositeProcessor_composite (base)_13:36:48.287000:<init>
-Mixer_composite (derived)_13:36:48.288000:<init>
-CompositeProcessor_composite (base)_13:36:48.287000:addChild_add
-CompositeProcessor_composite (base)_13:36:48.287000:addChild_add
-CompositeProcessor_composite (base)_13:36:48.281000:addChild_add
-Distortion_Distortion_13:36:48.288000:<init>
-SoundProcessorToComposable_adapter_13:36:48.288000:<init>
-CompositeProcessor_composite (base)_13:36:48.281000:addChild_add
-CompositeProcessor_composite (base)_13:36:48.281000:process_operation
-Mixer_composite (derived)_13:36:48.288000:process_operation
-CompositeProcessor_composite (base)_13:36:48.287000:process_operation
-CompositeProcessor_composite (base)_13:36:48.282000:process_operation
-SoundProcessorToComposable_adapter_13:36:48.284000:process_request
-Distortion_Distortion_13:36:48.282000:process_process
-SoundProcessorToComposable_adapter_13:36:48.285000:process_request
-Delay_Delay_13:36:48.285000:process_process
-CompositeProcessor_composite (base)_13:36:48.285000:process_operation
-SoundProcessorToComposable_adapter_13:36:48.286000:process_request
-WahWah_WahWah_13:36:48.285000:process_process
-SoundProcessorToComposable_adapter_13:36:48.286000:process_request
-Delay_Delay_13:36:48.286000:process_process
-SoundProcessorToComposable_adapter_13:36:48.288000:process_request
-Distortion_Distortion_13:36:48.288000:process_process
-```
-
-#### Адаптеры.
-```
-CompositeProcessor_composite (base)_13:36:48.295000:<init>
-Distortion_Distortion_13:36:48.295000:<init>
-SoundProcessorToComposable_adapter_13:36:48.295000:<init>
-CompositeProcessor_composite (base)_13:36:48.295000:addChild_add
-IncompatibleProcessor_adaptee_13:36:48.297000:<init>
-IncompatibleProcessorAdapter_adapter_13:36:48.297000:<init>
-SoundProcessorToComposable_adapter_13:36:48.297000:<init>
-CompositeProcessor_composite (base)_13:36:48.295000:addChild_add
-CompositeProcessor_composite (base)_13:36:48.295000:process_operation
-SoundProcessorToComposable_adapter_13:36:48.295000:process_request
-Distortion_Distortion_13:36:48.295000:process_process
-SoundProcessorToComposable_adapter_13:36:48.297000:process_request
-IncompatibleProcessorAdapter_adapter_13:36:48.297000:process_request
-IncompatibleProcessor_adaptee_13:36:48.297000:process_specificRequest
+Label_Mock_06:14:37.524262:<init>
+Slider_Mock_06:14:37.525260:<init>
+ProcessorViewModel_Prototype_06:14:37.525260:<init>
+InputViewModel_ConcretePrototype_06:14:37.526259:<init>
+InputBox_Mock_06:14:37.527258:<init>
+Slider_Mock_06:14:37.527258:<init>
+ProcessorViewModel_Prototype_06:14:37.527258:<init>
+NodeViewModel_ConcretePrototype_06:14:37.527258:<init>
+NodeViewModel_ConcretePrototype_06:14:37.527258:clone_Clone
+InputBox_Mock_06:14:37.527258:clone
+InputBox_Mock_06:14:37.528259:<init>
+Slider_Mock_06:14:37.527258:clone
+Slider_Mock_06:14:37.528259:<init>
+ProcessorViewModel_Prototype_06:14:37.528259:<init>
+NodeViewModel_ConcretePrototype_06:14:37.528259:<init>
+Slider_Mock_06:14:37.529260:<init>
+Switch_Mock_06:14:37.529260:<init>
+ProcessorViewModel_Prototype_06:14:37.529260:<init>
+OutputViewModel_ConcretePrototype_06:14:37.529260:<init>
 ```
