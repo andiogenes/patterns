@@ -14,6 +14,7 @@ import creational.abstract_factory.providers.VoxProvider
 import creational.factory_method.producers.BitCrusherProducer
 import creational.factory_method.producers.FlangerProducer
 import creational.factory_method.producers.OverdriveProducer
+import creational.prototype.components.InputBox
 import creational.prototype.components.Label
 import creational.prototype.components.Slider
 import creational.prototype.components.Switch
@@ -43,11 +44,25 @@ fun factoryMethod() = listOf(BitCrusherProducer(), FlangerProducer(), OverdriveP
 fun abstractFactory(provider: ModuleProvider) = ModularProcessor(provider).process(DummyAudioData(byteArrayOf()))
 
 fun prototype() {
-    val output = OutputViewModel(Label(), Slider())
-    val distortion = NodeViewModel(output, Distortion(), Slider())
-    val delay = NodeViewModel(distortion, Delay(), Slider())
-    val wahWah = NodeViewModel(delay, WahWah(), Slider())
-    val input = InputViewModel(wahWah, Label())
+    val input = InputViewModel(Label(), Slider()).apply {
+        x = 10
+        y = 120
+    }
+    val node1 = NodeViewModel(arrayOf(input), InputBox(), Slider()).apply {
+        x = 50
+        y = 120
+    }
+    val node2 = (node1.clone() as NodeViewModel).apply {
+        x += 40
+        inputs[0] = node1
+    }
+    val output = OutputViewModel(node2, Slider(), Switch()).apply {
+        x = 240
+        y = 120
+    }
 
-    input.advanceCircuit().fold(DummyAudioData(byteArrayOf()) as AudioData) { acc, v -> v.process(acc) }
+    println("input: $input")
+    println("node1: $node1")
+    println("node2: $node2")
+    println("output: $output")
 }

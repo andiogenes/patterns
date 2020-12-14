@@ -1,5 +1,8 @@
 package creational.prototype.components
 
-abstract class Component {
-    abstract fun clone(): Component
-}
+import creational.prototype.Cloneable
+
+/**
+ * Модель представления компонента (одного из элементов управления) обработчика.
+ */
+interface Component: Cloneable<Component>

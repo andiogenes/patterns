@@ -2,34 +2,50 @@ package creational.prototype.components
 
 import common.logging.LoggableObject
 
-class Slider : Component() {
+/**
+ * Заглушка для компонента "Ползунок".
+ */
+class Slider : Component {
     private val _log = LoggableObject("Slider", "Mock")
     override fun clone(): Component {
         _log("clone")
         return Slider()
     }
+    override fun toString(): String = "Slider"
 }
 
-class InputBox : Component() {
+/**
+ * Заглушка для компонента "Форма ввода".
+ */
+class InputBox : Component {
     private val _log = LoggableObject("InputBox", "Mock")
     override fun clone(): Component {
         _log("clone")
-        return Slider()
+        return InputBox()
     }
+    override fun toString(): String = "InputBox"
 }
 
-class Label : Component() {
+/**
+ * Заглушка для компонента "Надпись".
+ */
+class Label : Component {
     private val _log = LoggableObject("Label", "Mock")
     override fun clone(): Component {
         _log("clone")
-        return Slider()
+        return Label()
     }
+    override fun toString(): String = "Label"
 }
 
-class Switch : Component() {
+/**
+ * Заглушка для компонента "Переключатель".
+ */
+class Switch : Component {
     private val _log = LoggableObject("Switch", "Mock")
     override fun clone(): Component {
         _log("clone")
-        return Slider()
+        return Switch()
     }
+    override fun toString(): String = "Switch"
 }
