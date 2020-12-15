@@ -1,68 +1,46 @@
 package main
 
-import common.data.AudioData
+import behavioral.memento.Caretaker
+import behavioral.memento.ReverbCombine
 import common.data.DummyAudioData
 import common.logging.Logger
 import common.logging.writers.FileLogWriter
-import common.processors.single.Delay
-import common.processors.single.Distortion
-import common.processors.single.WahWah
-import creational.abstract_factory.ModularProcessor
-import creational.abstract_factory.providers.FenderProvider
-import creational.abstract_factory.providers.ModuleProvider
-import creational.abstract_factory.providers.VoxProvider
-import creational.factory_method.producers.BitCrusherProducer
-import creational.factory_method.producers.FlangerProducer
-import creational.factory_method.producers.OverdriveProducer
-import creational.prototype.components.InputBox
-import creational.prototype.components.Label
-import creational.prototype.components.Slider
-import creational.prototype.components.Switch
-import creational.prototype.view_models.InputViewModel
-import creational.prototype.view_models.NodeViewModel
-import creational.prototype.view_models.OutputViewModel
 
 fun main() {
-    Logger.wrap(FileLogWriter("factory_method")) {
-        factoryMethod()
-    }
-    Logger.wrap(FileLogWriter("abstract_factory_1")) {
-        abstractFactory(FenderProvider())
-    }
-    Logger.wrap(FileLogWriter("abstract_factory_2")) {
-        abstractFactory(VoxProvider())
-    }
-    Logger.wrap(FileLogWriter("prototype")) {
-        prototype()
+    Logger.wrap(FileLogWriter("memento")) {
+        memento()
     }
 }
 
-fun factoryMethod() = listOf(BitCrusherProducer(), FlangerProducer(), OverdriveProducer())
-        .map { it.produce() }
-        .fold(DummyAudioData(byteArrayOf()) as AudioData) { acc, p -> p.process(acc) }
+fun memento() {
+    val dummy = DummyAudioData(byteArrayOf())
 
-fun abstractFactory(provider: ModuleProvider) = ModularProcessor(provider).process(DummyAudioData(byteArrayOf()))
+    val combine = ReverbCombine(ReverbCombine.Settings(
+            mode = ReverbCombine.WorkMode.Bloom,
+            decay = 0.5,
+            preDelay = 0.15,
+            mix = 0.75,
+            tone = 0.95,
+            param1 = 0.0,
+            param2 = 0.0,
+            mod = 0.0
+    )).apply { process(dummy) }
 
-fun prototype() {
-    val input = InputViewModel(Label(), Slider()).apply {
-        x = 10
-        y = 120
-    }
-    val node1 = NodeViewModel(arrayOf(input), InputBox(), Slider()).apply {
-        x = 50
-        y = 120
-    }
-    val node2 = (node1.clone() as NodeViewModel).apply {
-        x += 40
-        inputs[0] = node1
-    }
-    val output = OutputViewModel(node2, Slider(), Switch()).apply {
-        x = 240
-        y = 120
-    }
+    val caretaker = Caretaker<ReverbCombine.Settings>()
 
-    println("input: $input")
-    println("node1: $node1")
-    println("node2: $node2")
-    println("output: $output")
+    with (combine) {
+        caretaker.save(createMemento())
+        state.mode = ReverbCombine.WorkMode.Reflections
+        process(dummy)
+
+        caretaker.save(createMemento())
+        state.param1 = 1.0
+        process(dummy)
+
+        setMemento(caretaker.restore(0))
+        process(dummy)
+
+        setMemento(caretaker.restore())
+        process(dummy)
+    }
 }
