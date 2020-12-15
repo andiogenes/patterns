@@ -2,13 +2,29 @@ package main
 
 import behavioral.memento.Caretaker
 import behavioral.memento.ReverbCombine
+import behavioral.state.MultiModeProcessor
 import common.data.DummyAudioData
 import common.logging.Logger
 import common.logging.writers.FileLogWriter
 
 fun main() {
+    Logger.wrap(FileLogWriter("state")) {
+        prettyPrint("State") { state() }
+    }
     Logger.wrap(FileLogWriter("memento")) {
-        memento()
+        prettyPrint("Memento") { memento() }
+    }
+}
+
+fun state() {
+    val dummy = DummyAudioData(byteArrayOf())
+
+    with(MultiModeProcessor()) {
+        process(dummy)
+        freeze(5)
+        repeat(7) {
+            process(dummy)
+        }
     }
 }
 
@@ -28,7 +44,7 @@ fun memento() {
 
     val caretaker = Caretaker<ReverbCombine.Settings>()
 
-    with (combine) {
+    with(combine) {
         caretaker.save(createMemento())
         state.mode = ReverbCombine.WorkMode.Reflections
         process(dummy)
@@ -43,4 +59,10 @@ fun memento() {
         setMemento(caretaker.restore())
         process(dummy)
     }
+}
+
+fun prettyPrint(name: String, block: () -> Unit) {
+    println("$name\n${"-".repeat(name.length)}")
+    block()
+    println()
 }
