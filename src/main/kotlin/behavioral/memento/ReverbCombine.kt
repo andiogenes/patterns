@@ -9,7 +9,7 @@ import common.processors.SoundProcessor
  *
  * Настройки и режимы работы взяты с [Strymon Big Sky](https://www.strymon.net/product/bigsky/).
  */
-class ReverbCombine(var state: Settings) : SoundProcessor, Loggable("DelayCombine", "Originator") {
+class ReverbCombine(var state: Settings) : SoundProcessor, Loggable("ReverbCombine", "Originator") {
     /**
      * Режимы работы процессора.
      */
