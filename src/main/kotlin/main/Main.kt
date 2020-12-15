@@ -2,17 +2,26 @@ package main
 
 import behavioral.memento.Caretaker
 import behavioral.memento.ReverbCombine
+import behavioral.observer.ObservableViewModel
+import behavioral.observer.views.JavaFXViewMock
+import behavioral.observer.views.SwingViewMock
 import behavioral.state.MultiModeProcessor
 import common.data.DummyAudioData
 import common.logging.Logger
 import common.logging.writers.FileLogWriter
+import creational.prototype.components.Label
+import creational.prototype.components.Slider
+import creational.prototype.components.Switch
 
 fun main() {
     Logger.wrap(FileLogWriter("state")) {
-        prettyPrint("State") { state() }
+        entitle("State") { state() }
     }
     Logger.wrap(FileLogWriter("memento")) {
-        prettyPrint("Memento") { memento() }
+        entitle("Memento") { memento() }
+    }
+    Logger.wrap(FileLogWriter("observer")) {
+        entitle("Observer") { observer() }
     }
 }
 
@@ -61,7 +70,28 @@ fun memento() {
     }
 }
 
-fun prettyPrint(name: String, block: () -> Unit) {
+fun observer() {
+    val swingViewMock = SwingViewMock()
+    val javaFXViewMock = JavaFXViewMock()
+
+    val slider = Slider()
+    with(ObservableViewModel(Label(), slider)) {
+        subscribe(swingViewMock)
+        subscribe(javaFXViewMock)
+
+        x = 125
+        y = 120
+
+        removeComponent(slider)
+        addComponent(Switch())
+
+        unsubscribe(swingViewMock)
+        x = 5
+        y = 5
+    }
+}
+
+fun entitle(name: String, block: () -> Unit) {
     println("$name\n${"-".repeat(name.length)}")
     block()
     println()
