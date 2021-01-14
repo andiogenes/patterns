@@ -4,6 +4,7 @@ import common.data.DummyAudioData
 import common.logging.Logger
 import common.logging.writers.FileLogWriter
 import common.utils.Either
+import creational.builder.NodeBuilder
 import creational.object_pool.FontPool
 import creational.object_pool.PoolFontData
 import structural.bridge.AsioProcessorImpl
@@ -21,6 +22,11 @@ fun main() {
     Logger.wrap(FileLogWriter("object_pool")) {
         entitle("Object pool") {
             objectPool()
+        }
+    }
+    Logger.wrap(FileLogWriter("builder")) {
+        entitle("Builder") {
+            builder()
         }
     }
 }
@@ -63,6 +69,36 @@ fun objectPool() {
 
     // Проверяем, заполнен ли пул, пробуя получить доступ к шрифту
     ensurePoolIsFull(pool.getFontData(TypeFace("Tahoma", 16f), Font(), Paint()))
+}
+
+fun builder() {
+    val node = NodeBuilder()
+            .setInPorts(100)
+            .setOutPorts(200)
+            .reset()
+            .addParameter("Test", 0.5f)
+            .resetParameters()
+            .setInPorts(1)
+            .setOutPorts(1)
+            .addParameter("Volume", 0.5f)
+            .addParameter("Gain", 0.6f)
+            .addParameter("Tone", 0.7f)
+            .setAction { println("Hello, builder!") }
+            .getResult()
+
+    node.action()
+    println()
+
+    println("In ports count: ${node.inPorts.size}")
+    println("Out ports count: ${node.outPorts.size}")
+    println()
+
+    println("Parameter headers:")
+    node.parameterHeaders.forEach { println(it) }
+    println()
+
+    println("Parameters:")
+    node.parameters.forEach { println(it) }
 }
 
 fun entitle(name: String, block: () -> Unit) {
