@@ -23,7 +23,7 @@ fun main() {
         }
     }
     Logger.wrap(FileLogWriter("visitor")) {
-        entitle("visitor") {
+        entitle("Visitor") {
             visitor()
         }
     }
