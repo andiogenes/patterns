@@ -14,7 +14,7 @@ _Антон Завьялов, ПИ-72_
 
 Диаграмма классов:
 
-![State](https://raw.githubusercontent.com/andiogenes/patterns/media/structural-2/bridge.png)
+![Bridge](https://raw.githubusercontent.com/andiogenes/patterns/media/structural-2/bridge.png)
 
 ### 2. Фасад и информационный эксперт
 --------------------
@@ -26,7 +26,7 @@ Node работает со своим состоянием, Dataflow испол�
 
 Диаграмма классов:
 
-![Memento](https://raw.githubusercontent.com/andiogenes/patterns/media/structural-2/facade.png)
+![Facade](https://raw.githubusercontent.com/andiogenes/patterns/media/structural-2/facade.png)
 
 ### 3. Приспособленец
 ----------------------
@@ -38,7 +38,7 @@ Node работает со своим состоянием, Dataflow испол�
 
 Диаграмма классов:
 
-![Observer](https://raw.githubusercontent.com/andiogenes/patterns/media/structural-2/flyweight.png)
+![Flyweight](https://raw.githubusercontent.com/andiogenes/patterns/media/structural-2/flyweight.png)
 
 
 ### __Скриншот, демонстрирующий работу программы__
