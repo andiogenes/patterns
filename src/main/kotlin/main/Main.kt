@@ -9,6 +9,10 @@ import structural.bridge.NativeVendorException
 import structural.bridge.TraceableNativeProcessor
 import structural.facade.Dataflow
 import structural.facade.Node
+import structural.flyweight.Font
+import structural.flyweight.FontDataFactory
+import structural.flyweight.Paint
+import structural.flyweight.TypeFace
 
 fun main() {
     Logger.wrap(FileLogWriter("bridge_1")) {
@@ -26,6 +30,11 @@ fun main() {
     Logger.wrap(FileLogWriter("facade")) {
         entitle("Facade") {
             facade()
+        }
+    }
+    Logger.wrap(FileLogWriter("flyweight")) {
+        entitle("Flyweight") {
+            flyweight()
         }
     }
 }
@@ -66,6 +75,25 @@ fun facade() {
     }
 
     dataFlow.makePipeline()(listOf())
+}
+
+fun flyweight() {
+   val fontDataFactory = FontDataFactory()
+
+    val font1 = fontDataFactory.getFontData(TypeFace("Tahoma", 16f), Font(), Paint())
+    val font2 = fontDataFactory.getFontData(TypeFace("Tahoma", 16f), Font(), Paint())
+    val font3 = fontDataFactory.getFontData(TypeFace("Tahoma", 14f), Font(), Paint())
+    val font4 = fontDataFactory.getFontData(TypeFace("Verdana", 16f), Font(), Paint())
+
+    println("font 1: $font1")
+    println("font 2: $font2")
+    println("font 3: $font3")
+    println("font 4: $font4")
+    println()
+
+    println("font1 == font2: ${font1 == font2}")
+    println("font2 == font3: ${font2 == font3}")
+    println("font1 == font4: ${font1 == font4}")
 }
 
 fun entitle(name: String, block: () -> Unit) {
