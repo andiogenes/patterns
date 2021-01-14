@@ -1,148 +1,148 @@
-Лабораторные работы 12-13 (Поведенческие шаблоны. Часть 1)
+Лабораторные работы 6-7 (Структурные шаблоны. Часть 2)
 =====================
 _Антон Завьялов, ПИ-72_
 -----------------------
 
-### 1. Состояние
+### 1. Мост
 --------------------
 Краткое описание назначения классов в системе:
-* __MultiModeProcessor__ - обработчик, который может на время переключаться в другой режим работы (контекст состояния).
-* __Mode__ - режим работы обработчика (состояние). Есть два режима работы: __Standard__ и __Freeze__. Freeze определенное количество раз обрабатывает звук особым образом, потом происходит переключение в режим Standard.
+* __NativeProcessor__ - абстракция над платформо-зависимыми реализациями обработчиков. (Абстракция)
+* __NativeProcessorImpl__ - интерфейс реализации платформо-зависимого обработчика. (Интерфейс реализации)
+* __AsioProcessorImpl__ - реализация обработчика с помощью библиотеки [asio4all](http://www.asio4all.org/). (Конкретная реализация)
+* __LibsoundioProcessorImpl__ - реализация обработчика с помощью библиотеки [libsoundio](https://github.com/andrewrk/libsoundio). (Конкретная реализация)
+* __TraceableNativeProcessor__ - трассируемый нативный обработчик. (Модифицированная абстракция)
 
 Диаграмма классов:
 
-![State](https://raw.githubusercontent.com/andiogenes/patterns/media/behavioral-1/state.png)
+![State](https://raw.githubusercontent.com/andiogenes/patterns/media/structural-2/bridge.png)
 
-### 2. Хранитель (Мементо)
+### 2. Фасад и информационный эксперт
 --------------------
 Краткое описание назначения классов в системе:
-* __ReverbCombine__ - Обработчик-"комбайн". Имеет множество настроек и режимов работы (Создатель мементо).
-* __Setings__ - состояние обработчика (хранимое в мементо).
-* __Memento__ - образ состояния, который создаёт обработчик, и может восстанавливать его. Иными словами, это пресет. (Мементо/хранитель)
-* __Caretaker__ - хранит образы состояний и выдает их по запросу. (Опекун)
+* __Dataflow__ - поток данных. (Фасад для работы с узлами).
+* __Node__ - узел потока данных. (Элемент подсистемы).
+
+Node работает со своим состоянием, Dataflow использует методы агрегированных узлов для обеспечения работы подсистемы, т.е. выполняется условие наличия информационного эксперта.
 
 Диаграмма классов:
 
-![Memento](https://raw.githubusercontent.com/andiogenes/patterns/media/behavioral-1/memento.png)
+![Memento](https://raw.githubusercontent.com/andiogenes/patterns/media/structural-2/facade.png)
 
-### 3. Наблюдатель
+### 3. Приспособленец
 ----------------------
 Краткое описание назначения классов в системе:
-* __ObservableViewModel__ - модель представления обработчика в программе, которая может информировать представление об изменении своего состояния. (Наблюдаемый объект)
-* __Observer__ - интерфейс наблюдателя.
-* __JavaFXViewMock__, __SwingViewMock__ - заглушки для представления обработчика. (Конкретные наблюдатели)
-* __Message__ - сообщение, которое наблюдаемый объект посылает всем наблюдателям; которое все наблюдатели получают от наблюдаемого объекта.
+* __FontData__ - данные шрифта. (Приспособленец)
+* __SharedFontData__ - разделяемые данные шрифта. (Конкретный приспособленец)
+* __UniqueFontData__ - уникальные данные шрифта. (Конкретный неразделяемый приспособленец)
+* __FontFactory__ - фабрика данных о шрифтах. (Фабрика приспособленцев)
 
 Диаграмма классов:
 
-![Observer](https://raw.githubusercontent.com/andiogenes/patterns/media/behavioral-1/observer.png)
+![Observer](https://raw.githubusercontent.com/andiogenes/patterns/media/structural-2/flyweight.png)
 
 
 ### __Скриншот, демонстрирующий работу программы__
 --------------------------------------------------
-![Screenshot](https://raw.githubusercontent.com/andiogenes/patterns/media/behavioral-1/screen.png)
+![Screenshot](https://raw.githubusercontent.com/andiogenes/patterns/media/structural-2/screen.png)
 
 ### __Логи__
 ------------
-#### Состояние.
+#### Мост 1.
 ```
-MultiModeProcessor_Context_13:49:42.810884:<init>
-Mode_State_13:49:42.817502:<init>
-Standard_ConcreteState_13:49:42.819041:<init>
-MultiModeProcessor_Context_13:49:42.810884:process_Operation
-Standard_ConcreteState_13:49:42.819041:process_Operation
-Mode_State_13:49:42.817502:process_Operation
-MultiModeProcessor_Context_13:49:42.810884:freeze_ChangeState(Freeze)
-Mode_State_13:49:42.821024:<init>
-Freeze_ConcreteState_13:49:42.822024:<init>
-MultiModeProcessor_Context_13:49:42.810884:process_Operation
-Freeze_ConcreteState_13:49:42.822024:process_Operation
-Mode_State_13:49:42.821024:process_Operation
-MultiModeProcessor_Context_13:49:42.810884:process_Operation
-Freeze_ConcreteState_13:49:42.822024:process_Operation
-Mode_State_13:49:42.821024:process_Operation
-MultiModeProcessor_Context_13:49:42.810884:process_Operation
-Freeze_ConcreteState_13:49:42.822024:process_Operation
-Mode_State_13:49:42.821024:process_Operation
-MultiModeProcessor_Context_13:49:42.810884:process_Operation
-Freeze_ConcreteState_13:49:42.822024:process_Operation
-Mode_State_13:49:42.821024:process_Operation
-MultiModeProcessor_Context_13:49:42.810884:process_Operation
-Freeze_ConcreteState_13:49:42.822024:process_Operation
-Mode_State_13:49:42.821024:process_Operation
-MultiModeProcessor_Context_13:49:42.810884:process_Operation
-Freeze_ConcreteState_13:49:42.822024:process_Operation
-Mode_State_13:49:42.823023:<init>
-Standard_ConcreteState_13:49:42.824024:<init>
-Mode_State_13:49:42.821024:changeMode_ChangeState
-Standard_ConcreteState_13:49:42.824024:process_Operation
-Mode_State_13:49:42.823023:process_Operation
-MultiModeProcessor_Context_13:49:42.810884:process_Operation
-Standard_ConcreteState_13:49:42.824024:process_Operation
-Mode_State_13:49:42.823023:process_Operation
+NativeProcessorImpl_Implementor_06:11:02.512059:<init>
+LibsoundioProcessorImpl_ConcreteImplementor_06:11:02.514979:<init>
+NativeProcessor_Abstraction_06:11:02.514979:<init>
+NativeProcessor_Abstraction_06:11:02.514979:process_operation
+NativeProcessorImpl_Implementor_06:11:02.512059:process_operationImpl
+LibsoundioProcessorImpl_ConcreteImplementor_06:11:02.514979:processImpl_operationImpl
+NativeProcessorImpl_Implementor_06:11:02.519975:<init>
+LibsoundioProcessorImpl_ConcreteImplementor_06:11:02.520979:<init>
+NativeProcessor_Abstraction_06:11:02.520979:<init>
+TraceableNativeProcessor_RefinedAbstraction_06:11:02.521976:<init>
+TraceableNativeProcessor_RefinedAbstraction_06:11:02.521976:process_operation
+NativeProcessor_Abstraction_06:11:02.520979:process_operation
+NativeProcessorImpl_Implementor_06:11:02.519975:process_operationImpl
+LibsoundioProcessorImpl_ConcreteImplementor_06:11:02.520979:processImpl_operationImpl
 ```
 
-#### Хранитель.
+#### Мост 2.
 ```
-Settings_State (Memento)_13:49:42.834145:<init>
-ReverbCombine_Originator_13:49:42.835145:<init>
-ReverbCombine_Originator_13:49:42.835145:process_Operation
-Caretaker_Caretaker_13:49:42.840146:<init>
-ReverbCombine_Originator_13:49:42.835145:createMemento_CreateMemento
-Settings_State (Memento)_13:49:42.842148:<init>
-Memento_Memento_13:49:42.843147:<init>
-Caretaker_Caretaker_13:49:42.840146:save_SaveMemento
-ReverbCombine_Originator_13:49:42.835145:process_Operation
-ReverbCombine_Originator_13:49:42.835145:createMemento_CreateMemento
-Settings_State (Memento)_13:49:42.843200:<init>
-Memento_Memento_13:49:42.844215:<init>
-Caretaker_Caretaker_13:49:42.840146:save_SaveMemento
-ReverbCombine_Originator_13:49:42.835145:process_Operation
-Caretaker_Caretaker_13:49:42.840146:restore(I)_RestoreMemento
-ReverbCombine_Originator_13:49:42.835145:setMemento_SetMemento
-ReverbCombine_Originator_13:49:42.835145:process_Operation
-Caretaker_Caretaker_13:49:42.840146:restore_RestoreMemento
-ReverbCombine_Originator_13:49:42.835145:setMemento_SetMemento
-ReverbCombine_Originator_13:49:42.835145:process_Operation
+NativeProcessorImpl_Implementor_06:11:02.529975:<init>
+AsioProcessorImpl_ConcreteImplementor_06:11:02.530974:<init>
+NativeProcessor_Abstraction_06:11:02.530974:<init>
+NativeProcessor_Abstraction_06:11:02.530974:process_operation
+NativeProcessorImpl_Implementor_06:11:02.529975:process_operationImpl
+AsioProcessorImpl_ConcreteImplementor_06:11:02.530974:processImpl_operationImpl
+NativeProcessorImpl_Implementor_06:11:02.531974:<init>
+AsioProcessorImpl_ConcreteImplementor_06:11:02.531974:<init>
+NativeProcessor_Abstraction_06:11:02.531974:<init>
+TraceableNativeProcessor_RefinedAbstraction_06:11:02.531974:<init>
+TraceableNativeProcessor_RefinedAbstraction_06:11:02.531974:process_operation
+NativeProcessor_Abstraction_06:11:02.531974:process_operation
+NativeProcessorImpl_Implementor_06:11:02.531974:process_operationImpl
+AsioProcessorImpl_ConcreteImplementor_06:11:02.531974:processImpl_operationImpl
 ```
 
-#### Наблюдатель.
+#### Фасад.
 ```
-SwingViewMock_ConcreteObserver_13:49:42.854212:<init>
-JavaFXViewMock_ConcreteObserver_13:49:42.856213:<init>
-Slider_Mock_13:49:42.860254:<init>
-Label_Mock_13:49:42.956213:<init>
-ProcessorViewModel_Subject_13:49:42.956213:<init>
-ProcessorViewModel_Subject_13:49:42.956213:subscribe_Attach
-ProcessorViewModel_Subject_13:49:42.956213:subscribe_Attach
-ProcessorViewModel_Subject_13:49:42.956213:x=_Operation
-Message_Message_13:49:42.969214:<init>
-ProcessorViewModel_Subject_13:49:42.956213:notify_Notify
-SwingViewMock_ConcreteObserver_13:49:42.854212:update_Update
-JavaFXViewMock_ConcreteObserver_13:49:42.856213:update_Update
-ProcessorViewModel_Subject_13:49:42.956213:y=_Operation
-Message_Message_13:49:42.971212:<init>
-ProcessorViewModel_Subject_13:49:42.956213:notify_Notify
-SwingViewMock_ConcreteObserver_13:49:42.854212:update_Update
-JavaFXViewMock_ConcreteObserver_13:49:42.856213:update_Update
-ProcessorViewModel_Subject_13:49:42.956213:removeComponent_Operation
-Message_Message_13:49:42.973214:<init>
-ProcessorViewModel_Subject_13:49:42.956213:notify_Notify
-SwingViewMock_ConcreteObserver_13:49:42.854212:update_Update
-JavaFXViewMock_ConcreteObserver_13:49:42.856213:update_Update
-Switch_Mock_13:49:42.977214:<init>
-ProcessorViewModel_Subject_13:49:42.956213:addComponent_Operation
-Message_Message_13:49:42.977214:<init>
-ProcessorViewModel_Subject_13:49:42.956213:notify_Notify
-SwingViewMock_ConcreteObserver_13:49:42.854212:update_Update
-JavaFXViewMock_ConcreteObserver_13:49:42.856213:update_Update
-ProcessorViewModel_Subject_13:49:42.956213:unsubscribe_Detach
-ProcessorViewModel_Subject_13:49:42.956213:x=_Operation
-Message_Message_13:49:42.978285:<init>
-ProcessorViewModel_Subject_13:49:42.956213:notify_Notify
-JavaFXViewMock_ConcreteObserver_13:49:42.856213:update_Update
-ProcessorViewModel_Subject_13:49:42.956213:y=_Operation
-Message_Message_13:49:42.978285:<init>
-ProcessorViewModel_Subject_13:49:42.956213:notify_Notify
-JavaFXViewMock_ConcreteObserver_13:49:42.856213:update_Update
+Dataflow_Facade_06:11:02.537976:<init>
+Node_Subsystem Class_06:11:02.541975:<init>
+Dataflow_Facade_06:11:02.537976:add_FacadeEndpoint
+Node_Subsystem Class_06:11:02.543974:<init>
+Dataflow_Facade_06:11:02.537976:add_FacadeEndpoint
+Node_Subsystem Class_06:11:02.545975:<init>
+Dataflow_Facade_06:11:02.537976:add_FacadeEndpoint
+Node_Subsystem Class_06:11:02.546974:<init>
+Dataflow_Facade_06:11:02.537976:add_FacadeEndpoint
+Dataflow_Facade_06:11:02.537976:connect_FacadeEndpoint
+Node_Subsystem Class_06:11:02.541975:connectRight_operation
+Node_Subsystem Class_06:11:02.545975:connectRight_operation
+Node_Subsystem Class_06:11:02.546974:connectRight_operation
+Dataflow_Facade_06:11:02.537976:makePipeline_FacadeEndpoint
+Dataflow_Facade_06:11:02.537976:findSource_FacadeEndpoint
+```
+
+#### Легковес.
+```
+FontDataFactory_FlyweightFactory_06:11:02.573975:<init>
+TypeFace_DomainObject_06:11:02.576004:<init>
+Font_DomainObject_06:11:02.578974:<init>
+Paint_DomainObject_06:11:02.580019:<init>
+FontDataFactory_FlyweightFactory_06:11:02.573975:getFontData_GetFlyweight
+FontData_Flyweight_06:11:02.583974:<init>
+SharedFontData_ConcreteFlyweight_06:11:02.583974:<init>
+TypeFace_DomainObject_06:11:02.585003:<init>
+Font_DomainObject_06:11:02.585003:<init>
+Paint_DomainObject_06:11:02.585003:<init>
+FontDataFactory_FlyweightFactory_06:11:02.573975:getFontData_GetFlyweight
+SharedFontData_ConcreteFlyweight_06:11:02.583974:getTypeface_DataAccessor
+SharedFontData_ConcreteFlyweight_06:11:02.583974:getFont_DataAccessor
+SharedFontData_ConcreteFlyweight_06:11:02.583974:getPaint_DataAccessor
+TypeFace_DomainObject_06:11:02.585975:<init>
+Font_DomainObject_06:11:02.585975:<init>
+Paint_DomainObject_06:11:02.585975:<init>
+FontDataFactory_FlyweightFactory_06:11:02.573975:getFontData_GetFlyweight
+SharedFontData_ConcreteFlyweight_06:11:02.583974:getTypeface_DataAccessor
+FontData_Flyweight_06:11:02.585975:<init>
+SharedFontData_ConcreteFlyweight_06:11:02.586975:<init>
+TypeFace_DomainObject_06:11:02.586975:<init>
+Font_DomainObject_06:11:02.586975:<init>
+Paint_DomainObject_06:11:02.586975:<init>
+FontDataFactory_FlyweightFactory_06:11:02.573975:getFontData_GetFlyweight
+SharedFontData_ConcreteFlyweight_06:11:02.583974:getTypeface_DataAccessor
+SharedFontData_ConcreteFlyweight_06:11:02.586975:getTypeface_DataAccessor
+FontData_Flyweight_06:11:02.587976:<init>
+SharedFontData_ConcreteFlyweight_06:11:02.587976:<init>
+SharedFontData_ConcreteFlyweight_06:11:02.583974:getTypeface_DataAccessor
+SharedFontData_ConcreteFlyweight_06:11:02.583974:getFont_DataAccessor
+SharedFontData_ConcreteFlyweight_06:11:02.583974:getPaint_DataAccessor
+SharedFontData_ConcreteFlyweight_06:11:02.583974:getTypeface_DataAccessor
+SharedFontData_ConcreteFlyweight_06:11:02.583974:getFont_DataAccessor
+SharedFontData_ConcreteFlyweight_06:11:02.583974:getPaint_DataAccessor
+SharedFontData_ConcreteFlyweight_06:11:02.586975:getTypeface_DataAccessor
+SharedFontData_ConcreteFlyweight_06:11:02.586975:getFont_DataAccessor
+SharedFontData_ConcreteFlyweight_06:11:02.586975:getPaint_DataAccessor
+SharedFontData_ConcreteFlyweight_06:11:02.587976:getTypeface_DataAccessor
+SharedFontData_ConcreteFlyweight_06:11:02.587976:getFont_DataAccessor
+SharedFontData_ConcreteFlyweight_06:11:02.587976:getPaint_DataAccessor
 ```
