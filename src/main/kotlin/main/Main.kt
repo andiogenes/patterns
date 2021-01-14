@@ -5,6 +5,9 @@ import behavioral.command.Node
 import behavioral.indirection.ModelNode
 import behavioral.indirection.NodeBinding
 import behavioral.indirection.ViewNode
+import behavioral.visitor.CountByTypeVisitor
+import behavioral.visitor.FormattedPrintVisitor
+import behavioral.visitor.SoundEndpoint
 import common.logging.Logger
 import common.logging.writers.FileLogWriter
 
@@ -17,6 +20,11 @@ fun main() {
     Logger.wrap(FileLogWriter("command")) {
         entitle("Command") {
             command()
+        }
+    }
+    Logger.wrap(FileLogWriter("visitor")) {
+        entitle("visitor") {
+            visitor()
         }
     }
 }
@@ -64,6 +72,51 @@ fun command() {
     }
 
     dataFlow.makePipeline()(listOf())
+}
+
+fun visitor() {
+    val input1 = SoundEndpoint.Input("Input 1")
+    val input2 = SoundEndpoint.Input("Input 2", 0.5f)
+
+    val output1 = SoundEndpoint.Output("Output 1")
+    val output2 = SoundEndpoint.Output("Output 2", 2f)
+
+    val regularNames = listOf("Distortion", "WahWah", "Delay", "Reverb", "Flanger")
+
+    val regular1 = regularNames.map { SoundEndpoint.Regular(it) }.also {
+        it.first().from = input1
+        it.last().to = output1
+    }
+    regular1.zipWithNext().forEach { (l, r) ->
+        l.to = r
+        r.from = r
+    }
+
+    val regular2 = regularNames.map { SoundEndpoint.Regular(it) }.also {
+        it.first().from = input2
+        it.last().to = output2
+    }
+    regular2.zipWithNext().forEach { (l, r) ->
+        l.to = r
+        r.from = r
+    }
+
+    // Список с элементами для обхода
+    val traverseList = listOf(input1, input2, output1, output2) + regular1 + regular2
+
+    // Посетитель, подсчитывающий количество элементов определенного типа
+    val countByTypeVisitor = CountByTypeVisitor()
+
+    traverseList.forEach { it.accept(countByTypeVisitor) }
+
+    println("Endpoints by type:")
+    countByTypeVisitor.counts.forEach { (k, v) -> println("$k\t$v") }
+    println()
+
+    // Посетитель, выводящий информацию об элементах
+    val formattedPrintVisitor = FormattedPrintVisitor()
+
+    traverseList.forEach { it.accept(formattedPrintVisitor) }
 }
 
 fun entitle(name: String, block: () -> Unit) {
