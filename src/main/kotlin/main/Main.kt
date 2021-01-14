@@ -3,6 +3,9 @@ package main
 import common.data.DummyAudioData
 import common.logging.Logger
 import common.logging.writers.FileLogWriter
+import common.utils.Either
+import creational.object_pool.FontPool
+import creational.object_pool.PoolFontData
 import structural.bridge.AsioProcessorImpl
 import structural.bridge.NativeProcessor
 import structural.bridge.NativeVendorException
@@ -15,85 +18,51 @@ import structural.flyweight.Paint
 import structural.flyweight.TypeFace
 
 fun main() {
-    Logger.wrap(FileLogWriter("bridge_1")) {
-        entitle("Bridge #1") {
-            bridge(NativeProcessor())
-            bridge(TraceableNativeProcessor())
-        }
-    }
-    Logger.wrap(FileLogWriter("bridge_2")) {
-        entitle("Bridge #2") {
-            bridge(NativeProcessor(AsioProcessorImpl()))
-            bridge(TraceableNativeProcessor(AsioProcessorImpl()))
-        }
-    }
-    Logger.wrap(FileLogWriter("facade")) {
-        entitle("Facade") {
-            facade()
-        }
-    }
-    Logger.wrap(FileLogWriter("flyweight")) {
-        entitle("Flyweight") {
-            flyweight()
+    Logger.wrap(FileLogWriter("object_pool")) {
+        entitle("Object pool") {
+            objectPool()
         }
     }
 }
 
-fun bridge(abstraction: NativeProcessor) {
-    try {
-        abstraction.process(DummyAudioData(byteArrayOf()))
-    } catch (e: SecurityException) {
-        System.err.println(e.message)
-    } catch (e: NativeVendorException) {
-        System.err.println("A JNI error has occurred, please check your installation and try again")
-    }
-}
+fun objectPool() {
+    val pool = FontPool(5)
 
-fun facade() {
-    val dataFlow = Dataflow<String>()
-
-    val input = Node<String>(0, 1) {
-        "Input".also { println(it) }
-    }.also { dataFlow.add(it) }
-
-    val output = Node<String>(1, 0) {
-        "Output".also { println(it) }
-    }.also { dataFlow.add(it) }
-
-    val distortion = Node<String>(1, 1) {
-        "Distortion".also { println(it) }
-    }.also { dataFlow.add(it) }
-
-    val delay = Node<String>(1, 1) {
-        "Delay".also { println(it) }
-    }.also { dataFlow.add(it) }
-
-    dataFlow.connect { connector ->
-        connector(input, 0, distortion, 0)
-        connector(distortion, 0, delay, 0)
-        connector(delay, 0, output, 0)
+    fun ensurePoolIsFull(v: Either<String, PoolFontData>) {
+        when (v) {
+            is Either.Left -> println(v.value)
+            is Either.Right -> {
+                println("Pool isn't full, object: ${v.value}")
+                pool.releaseFontData(v.value)
+            }
+        }
     }
 
-    dataFlow.makePipeline()(listOf())
-}
+    // Пробуем переполнить пул одним объектом
+    repeat(10) {
+        pool.getFontData(TypeFace("Tahoma", 16f), Font(), Paint())
+    }
 
-fun flyweight() {
-   val fontDataFactory = FontDataFactory()
+    // Проверяем, заполнен ли пул, пробуя получить доступ к шрифту
+    ensurePoolIsFull(pool.getFontData(TypeFace("Tahoma", 16f), Font(), Paint()))
 
-    val font1 = fontDataFactory.getFontData(TypeFace("Tahoma", 16f), Font(), Paint())
-    val font2 = fontDataFactory.getFontData(TypeFace("Tahoma", 16f), Font(), Paint())
-    val font3 = fontDataFactory.getFontData(TypeFace("Tahoma", 14f), Font(), Paint())
-    val font4 = fontDataFactory.getFontData(TypeFace("Verdana", 16f), Font(), Paint())
+    // Пробуем переполнить пул уникальными объектами
+    val fonts = listOf("a", "b", "c", "d", "e").map {
+        pool.getFontData(TypeFace(it, 16f), Font(), Paint())
+    }
 
-    println("font 1: $font1")
-    println("font 2: $font2")
-    println("font 3: $font3")
-    println("font 4: $font4")
-    println()
+    // Проверяем, заполнен ли пул, пробуя получить доступ к шрифту
+    ensurePoolIsFull(pool.getFontData(TypeFace("Tahoma", 16f), Font(), Paint()))
 
-    println("font1 == font2: ${font1 == font2}")
-    println("font2 == font3: ${font2 == font3}")
-    println("font1 == font4: ${font1 == font4}")
+    // Пробуем удалить объект из пула
+    fonts.find {
+        it is Either.Right && it.value.typeface.family == "e"
+    }.let {
+        if (it is Either.Right) pool.releaseFontData(it.value)
+    }
+
+    // Проверяем, заполнен ли пул, пробуя получить доступ к шрифту
+    ensurePoolIsFull(pool.getFontData(TypeFace("Tahoma", 16f), Font(), Paint()))
 }
 
 fun entitle(name: String, block: () -> Unit) {
